@@ -4,85 +4,80 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace тумаков_упр_7_1
+namespace тумаков_упр_7._2
 {
 
 
-    // Перечислимый тип для видов банковского счёта (из упр. 3.1)
-    public enum AccountType
+
+    // Тип банковского счета — перечислимый тип из упр. 3.1
+    public enum BankAccountType
     {
-        Current,   // Текущий
-        Savings    // Сберегательный
+        Current,   // текущий
+        Savings    // сберегательный
     }
 
-    // Класс "Счёт в банке"
     public class BankAccount
     {
-        // Закрытые поля
-        private string accountNumber;
-        private decimal balance;
-        private AccountType accountType;
+        // Статическая переменная для генерации уникальных номеров счетов
+        private static long _nextAccountNumber = 1_000_000_000L;
 
-        // Публичные свойства для доступа к данным (заполнение и чтение)
-        public string AccountNumber
+        private readonly long _accountNumber; // генерируется автоматически
+        private decimal _balance;
+        private BankAccountType _type;
+
+        public BankAccount(BankAccountType type, decimal initialBalance)
         {
-            get { return accountNumber; }
-            set { accountNumber = value; }
+            if (initialBalance < 0)
+                throw new ArgumentException("Начальный баланс не может быть отрицательным");
+
+            _accountNumber = GenerateAccountNumber();
+            _type = type;
+            _balance = initialBalance;
         }
 
-        public decimal Balance
+        // Статический метод увеличивает счетчик и возвращает новый уникальный номер
+        private static long GenerateAccountNumber()
         {
-            get { return balance; }
-            set { balance = value; }
+            return ++_nextAccountNumber;
         }
 
-        public AccountType AccountType
+        // Методы чтения
+        public long AccountNumber => _accountNumber;
+        public decimal Balance => _balance;
+        public BankAccountType Type => _type;
+
+        // Методы заполнения/изменения
+        public void SetType(BankAccountType type)
         {
-            get { return accountType; }
-            set { accountType = value; }
+            _type = type;
         }
 
-        // Конструктор по умолчанию
-        public BankAccount() { }
-
-        // Конструктор с параметрами (для удобства заполнения)
-        public BankAccount(string number, decimal initialBalance, AccountType type)
+        public void SetBalance(decimal balance)
         {
-            accountNumber = number;
-            balance = initialBalance;
-            accountType = type;
+            if (balance < 0)
+                throw new ArgumentException("Баланс не может быть отрицательным");
+            _balance = balance;
         }
 
-        // Метод для вывода информации об объекте
-        public void PrintInfo()
+        public override string ToString()
         {
-            Console.WriteLine($"Номер счёта: {accountNumber}");
-            Console.WriteLine($"Баланс: {balance:C}");
-            Console.WriteLine($"Тип счёта: {accountType}");
+            return $"BankAccount{{ AccountNumber = {_accountNumber}, Balance = {_balance}, Type = {_type} }}";
         }
     }
 
-    class Program
+    public class Program
     {
-        static void Main()
+        public static void Main()
         {
-            // Создание объекта класса
-            BankAccount account = new BankAccount();
+            var account1 = new BankAccount(BankAccountType.Savings, 1000m);
+            var account2 = new BankAccount(BankAccountType.Current, 500m);
 
-            // Заполнение полей через свойства
-            account.AccountNumber = "40817810099910004312";
-            account.Balance = 15000.75m;
-            account.AccountType = AccountType.Savings;
-
-            // Вывод информации об объекте
-            Console.WriteLine("Информация о банковском счёте:");
-            account.PrintInfo();
-
-            // Демонстрация перечисления (как в упр. 3.1)
-            AccountType myType = AccountType.Current;
-            Console.WriteLine($"\nПример переменной перечисления: {myType}");
+            Console.WriteLine(account1);
+            Console.WriteLine(account2);
         }
     }
+
 
 }
+
 
